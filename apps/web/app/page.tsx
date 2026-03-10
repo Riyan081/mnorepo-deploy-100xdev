@@ -1,6 +1,7 @@
 import Image, { type ImageProps } from "next/image";
 import { Button } from "@repo/ui/button";
 import styles from "./page.module.css";
+import { prismaClient } from "@repo/db/client";
 
 type Props = Omit<ImageProps, "src"> & {
   srcLight: string;
@@ -9,6 +10,10 @@ type Props = Omit<ImageProps, "src"> & {
 
 const ThemeImage = (props: Props) => {
   const { srcLight, srcDark, ...rest } = props;
+
+  prismaClient.user.findMany().then((users : any) => {
+    console.log(users);
+  });
 
   return (
     <>
