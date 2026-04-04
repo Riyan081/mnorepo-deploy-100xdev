@@ -1,0 +1,27 @@
+name: Deploy to production
+
+on:
+  push:
+    branches:
+      - "prooduction"
+
+jobs:
+  redeploy_everything:
+    name: Deploying everything to the staging cluster
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: SSH into server and deploy
+        run: |
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/ssh_key
+          chmod 400 ~/ssh_key
+          ssh -i ~/ssh_key -o StrictHostKeyChecking=no ubuntu@13.53.102.78 << 'EOF'
+            cd mnorepo-deploy-100xdev
+            git pull
+            pnpm install
+            cd packages/db && npx prisma generate && cd ~/mnorepo-deploy-100xdev
+            pnpm run build
+            pm2 restart http-server
+            pm2 restart ws-server
+            pm2 restart web
+          EOF
